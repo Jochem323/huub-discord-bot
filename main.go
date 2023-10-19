@@ -35,6 +35,10 @@ func main() {
 			return
 		}
 
+		if m.GuildID == "" {
+			return
+		}
+
 		if m.Content == "ping" {
 			s.ChannelMessageSend(m.ChannelID, "pong")
 		}
