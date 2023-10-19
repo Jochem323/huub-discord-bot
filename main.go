@@ -23,6 +23,10 @@ func main() {
 		if m.Content == "ping" {
 			s.ChannelMessageSend(m.ChannelID, "pong")
 		}
+
+		if m.Content == "PING" {
+			s.ChannelMessageSend(m.ChannelID, "PONG")
+		}
 	})
 
 	discord.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
