@@ -47,6 +47,10 @@ func main() {
 			s.ChannelMessageSend(m.ChannelID, "PONG")
 		}
 
+		if m.Content == "huiselijk" {
+			s.ChannelMessageSend(m.ChannelID, "geweld")
+		}
+
 		if m.Content == "monke" {
 			url := "https://tenor.googleapis.com/v2/search?q=monke&key=" + os.Getenv("TENOR_KEY") + "&client_key=huub-discord-bot&country=NL&random=true&limit=50&media_filter=gif"
 			resp, err := http.Get(url)
