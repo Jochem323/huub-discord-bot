@@ -27,7 +27,7 @@ func AddKeyword(d *discordgo.Session, m *discordgo.MessageCreate, keywordStore s
 	key := strings.Split(m.Content, " ")[2]
 
 	// Get the reaction
-	reaction := strings.Split(m.Content, " ")[3]
+	reaction := strings.SplitN(m.Content, " ", 4)[3]
 
 	// Get the guildID
 	guildID := m.GuildID
