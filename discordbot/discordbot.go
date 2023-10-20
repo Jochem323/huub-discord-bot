@@ -2,6 +2,7 @@ package discordbot
 
 import (
 	"huub-discord-bot/commands"
+	"huub-discord-bot/common"
 	"log"
 	"os"
 	"strings"
@@ -24,6 +25,8 @@ func (b *DiscordBot) Init() error {
 	}
 
 	b.session = discord
+
+	b.AddGuildsToDB()
 
 	log.Println("Bot is running")
 
@@ -89,5 +92,16 @@ func (b *DiscordBot) CommandHandler(d *discordgo.Session, m *discordgo.MessageCr
 		commands.MonkeCommand(d, m)
 	case "keywords":
 		commands.KeywordsCommand(d, m, b.keywordStore)
+	}
+}
+
+func (d *DiscordBot) AddGuildsToDB() {
+	guilds := d.session.State.Guilds
+
+	for _, guild := range guilds {
+		_, err := d.guildStore.GetGuild(guild.ID)
+		if err != nil {
+			d.guildStore.AddGuild(common.NewGuild(guild.ID))
+		}
 	}
 }

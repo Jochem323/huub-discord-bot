@@ -1,8 +1,15 @@
 package common
 
 type Guild struct {
-	ID     int
+	ID     string
 	Prefix string
+}
+
+func NewGuild(id string) Guild {
+	return Guild{
+		ID:     id,
+		Prefix: ".",
+	}
 }
 
 type Keyword struct {
