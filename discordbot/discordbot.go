@@ -92,6 +92,8 @@ func (b *DiscordBot) CommandHandler(d *discordgo.Session, m *discordgo.MessageCr
 		commands.MonkeCommand(d, m)
 	case "keywords":
 		commands.KeywordsCommand(d, m, b.keywordStore)
+	case "prefix":
+		commands.PrefixCommand(d, m, b.guildStore)
 	}
 }
 
