@@ -9,6 +9,12 @@ import (
 )
 
 func PrefixCommand(d *discordgo.Session, m *discordgo.MessageCreate, store storage.GuildStore) {
+	// Check if the user is an admin
+	if !IsAdmin(d, m) {
+		d.ChannelMessageSend(m.ChannelID, "You are not an admin")
+		return
+	}
+	
 	// Retrieve the guild from the database
 	guild, err := store.GetGuild(m.GuildID)
 	if err != nil {
