@@ -14,15 +14,30 @@ func PrefixCommand(d *discordgo.Session, m *discordgo.MessageCreate, store stora
 		d.ChannelMessageSend(m.ChannelID, "You are not an admin")
 		return
 	}
-	
+
+	substrings := strings.Split(m.Content, " ")
+	if len(substrings) < 2 {
+		d.ChannelMessageSend(m.ChannelID, "Please provide a prefix")
+		return
+	}
+
+	if len(substrings) > 2 {
+		d.ChannelMessageSend(m.ChannelID, "Prefix cannot contain spaces")
+		return
+	}
+
+	// Retrieve the prefix from the message
+	prefix := strings.TrimSpace(substrings[1])
+	if prefix == "/" {
+		d.ChannelMessageSend(m.ChannelID, "Prefix cannot be /")
+		return
+	}
+
 	// Retrieve the guild from the database
 	guild, err := store.GetGuild(m.GuildID)
 	if err != nil {
 		return
 	}
-
-	// Retrieve the prefix from the message
-	prefix := strings.TrimSpace(strings.Split(m.Content, " ")[1])
 
 	// Update the prefix in the database
 	guild.Prefix = prefix
