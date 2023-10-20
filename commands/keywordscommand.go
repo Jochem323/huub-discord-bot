@@ -9,6 +9,12 @@ import (
 )
 
 func KeywordsCommand(d *discordgo.Session, m *discordgo.MessageCreate, keywordStore storage.KeywordStore) {
+	// Check if the user is an admin
+	if !IsAdmin(d, m) {
+		d.ChannelMessageSend(m.ChannelID, "You are not an admin")
+		return
+	}
+
 	// Get the subcommand
 	subcommand := strings.Split(m.Content, " ")[1]
 
