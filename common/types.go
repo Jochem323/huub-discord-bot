@@ -1,28 +1,26 @@
 package common
 
-type Guild struct {
-	ID     string
-	Prefix string
-}
+import "time"
 
-func NewGuild(id string) Guild {
-	return Guild{
-		ID:     id,
-		Prefix: ".",
-	}
+type Guild struct {
+	ID     string `json:"id"`
+	Prefix string `json:"prefix"`
 }
 
 type Keyword struct {
-	ID       int
-	GuildID  string
-	Key      string
-	Reaction string
+	ID       int    `json:"id"`
+	GuildID  string `json:"guild_id"`
+	Keyword  string `json:"keyword"`
+	Reaction string `json:"reaction"`
 }
 
-func NewKeyword(guildID string, key string, reaction string) Keyword {
-	return Keyword{
-		GuildID:  guildID,
-		Key:      key,
-		Reaction: reaction,
-	}
+type APIKey struct {
+	ID        int       `json:"id"`
+	Admin     bool      `json:"admin"`
+	GuildID   string    `json:"guild_id"`
+	CreatedBy string    `json:"created_by"`
+	CreatedAt time.Time `json:"created_at"`
+	Active    bool      `json:"active"`
+	Revoked   bool      `json:"revoked"`
+	Ratelimit bool      `json:"ratelimit"`
 }

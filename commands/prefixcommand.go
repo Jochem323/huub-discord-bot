@@ -41,7 +41,7 @@ func PrefixCommand(d *discordgo.Session, m *discordgo.MessageCreate, store stora
 
 	// Update the prefix in the database
 	guild.Prefix = prefix
-	err = store.UpdateGuild(*guild)
+	err = store.UpdateGuild(guild)
 	if err != nil {
 		return
 	}

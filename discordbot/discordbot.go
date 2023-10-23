@@ -103,7 +103,11 @@ func (d *DiscordBot) AddGuildsToDB() {
 	for _, guild := range guilds {
 		_, err := d.guildStore.GetGuild(guild.ID)
 		if err != nil {
-			d.guildStore.AddGuild(common.NewGuild(guild.ID))
+			newGuild := common.Guild{
+				ID:     guild.ID,
+				Prefix: ".",
+			}
+			d.guildStore.AddGuild(&newGuild)
 		}
 	}
 }

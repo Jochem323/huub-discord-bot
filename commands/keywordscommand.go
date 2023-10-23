@@ -41,10 +41,14 @@ func AddKeyword(d *discordgo.Session, m *discordgo.MessageCreate, keywordStore s
 	}
 
 	// Create the keyword
-	keyword := common.NewKeyword(m.GuildID, substrings[2], substrings[3])
+	keyword := common.Keyword{
+		GuildID:  m.GuildID,
+		Keyword:  substrings[2],
+		Reaction: substrings[3],
+	}
 
 	// Create the keyword
-	err := keywordStore.AddKeyword(m.GuildID, keyword)
+	_, err := keywordStore.AddKeyword(&keyword)
 	if err != nil {
 		d.ChannelMessageSend(m.ChannelID, "Something went wrong")
 		return
@@ -66,8 +70,8 @@ func ListKeywords(d *discordgo.Session, m *discordgo.MessageCreate, keywordStore
 
 	// Create the message
 	message := "Keywords:\n"
-	for _, keyword := range keywords {
-		message += keyword.Key + ": " + keyword.Reaction + "\n"
+	for _, keyword := range *keywords {
+		message += keyword.Keyword + ": " + keyword.Reaction + "\n"
 	}
 
 	d.ChannelMessageSend(m.ChannelID, message)

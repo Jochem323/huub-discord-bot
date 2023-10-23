@@ -29,12 +29,17 @@ func NewPostgresStore() (*PostgresStore, error) {
 
 // Initialize the database
 func (s *PostgresStore) Init() error {
-	err := s.CreatekeywordTable()
+	err := s.CreateKeywordTable()
 	if err != nil {
 		return err
 	}
 
-	err = s.CreateguildTable()
+	err = s.CreateGuildTable()
+	if err != nil {
+		return err
+	}
+
+	err = s.CreateAPIKeyTable()
 	if err != nil {
 		return err
 	}

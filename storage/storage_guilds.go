@@ -5,7 +5,7 @@ import (
 	"huub-discord-bot/common"
 )
 
-func (s *PostgresStore) CreateguildTable() error {
+func (s *PostgresStore) CreateGuildTable() error {
 	query := `CREATE TABLE IF NOT EXISTS guilds (
 		id TEXT PRIMARY KEY,
 		prefix TEXT NOT NULL
@@ -23,6 +23,27 @@ func ScanIntoGuild(rows *sql.Rows) (*common.Guild, error) {
 	)
 
 	return guild, err
+}
+
+func (s *PostgresStore) GetGuilds() (*[]common.Guild, error) {
+	query := `SELECT * FROM guilds;`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	guilds := []common.Guild{}
+	for rows.Next() {
+		guild, err := ScanIntoGuild(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		guilds = append(guilds, *guild)
+	}
+
+	return &guilds, nil
 }
 
 func (s *PostgresStore) GetGuild(guildID string) (*common.Guild, error) {
@@ -43,14 +64,14 @@ func (s *PostgresStore) GetGuild(guildID string) (*common.Guild, error) {
 	return guild, nil
 }
 
-func (s *PostgresStore) AddGuild(guild common.Guild) error {
+func (s *PostgresStore) AddGuild(guild *common.Guild) error {
 	query := `INSERT INTO guilds (id, prefix) VALUES ($1, $2);`
 
 	_, err := s.db.Exec(query, guild.ID, guild.Prefix)
 	return err
 }
 
-func (s *PostgresStore) UpdateGuild(guild common.Guild) error {
+func (s *PostgresStore) UpdateGuild(guild *common.Guild) error {
 	query := `UPDATE guilds SET prefix = $1 WHERE id = $2;`
 
 	_, err := s.db.Exec(query, guild.Prefix, guild.ID)
