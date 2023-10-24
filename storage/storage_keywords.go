@@ -34,14 +34,14 @@ func ScanRowIntoKeyword(row *sql.Row) (*common.Keyword, error) {
 	err := row.Scan(
 		&keyword.ID,
 		&keyword.GuildID,
-		&keyword.Keyword,
+		&keyword.Key,
 		&keyword.Reaction,
 	)
 
 	return keyword, err
 }
 
-func (s *PostgresStore) GetKeywords(guildID string) (*[]common.Keyword, error) {
+func (s *PostgresStore) GetKeywords(guildID string) ([]common.Keyword, error) {
 	query := `SELECT * FROM keywords WHERE guild_id = $1;`
 
 	rows, err := s.db.Query(query, guildID)

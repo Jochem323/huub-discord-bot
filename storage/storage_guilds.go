@@ -35,29 +35,6 @@ func ScanRowIntoGuild(row *sql.Row) (*common.Guild, error) {
 	return guild, err
 }
 
-func (s *PostgresStore) GetGuilds() (*[]common.Guild, error) {
-	query := `SELECT * FROM guilds;`
-
-	rows, err := s.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	guilds := []common.Guild{}
-	for rows.Next() {
-		guild, err := ScanRowsIntoGuild(rows)
-		if err != nil {
-			return nil, err
-		}
-
-		guilds = append(guilds, *guild)
-	}
-
-	return &guilds, nil
-}
-
 func (s *PostgresStore) GetGuild(guildID string) (*common.Guild, error) {
 	query := `SELECT * FROM guilds WHERE id = $1;`
 
