@@ -21,9 +21,25 @@ func (s *PostgresStore) CreateAPIKeyTable() error {
 	return err
 }
 
-func ScanIntoAPIKey(rows *sql.Rows) (*common.APIKey, error) {
+func ScanRowsIntoAPIKey(rows *sql.Rows) (*common.APIKey, error) {
 	key := new(common.APIKey)
 	err := rows.Scan(
+		&key.ID,
+		&key.Admin,
+		&key.GuildID,
+		&key.CreatedBy,
+		&key.CreatedAt,
+		&key.Active,
+		&key.Revoked,
+		&key.Ratelimit,
+	)
+
+	return key, err
+}
+
+func ScanRowIntoAPIKey(row *sql.Row) (*common.APIKey, error) {
+	key := new(common.APIKey)
+	err := row.Scan(
 		&key.ID,
 		&key.Admin,
 		&key.GuildID,
@@ -45,9 +61,11 @@ func (s *PostgresStore) GetKeys() (*[]common.APIKey, error) {
 		return nil, err
 	}
 
+	defer rows.Close()
+
 	keys := []common.APIKey{}
 	for rows.Next() {
-		key, err := ScanIntoAPIKey(rows)
+		key, err := ScanRowsIntoAPIKey(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -61,14 +79,9 @@ func (s *PostgresStore) GetKeys() (*[]common.APIKey, error) {
 func (s *PostgresStore) GetKey(keyID int) (*common.APIKey, error) {
 	query := `SELECT * FROM api_keys WHERE id = $1;`
 
-	rows, err := s.db.Query(query, keyID)
-	if err != nil {
-		return nil, err
-	}
+	row := s.db.QueryRow(query, keyID)
 
-	rows.Next()
-
-	key, err := ScanIntoAPIKey(rows)
+	key, err := ScanRowIntoAPIKey(row)
 	if err != nil {
 		return nil, err
 	}
