@@ -15,9 +15,19 @@ func (s *PostgresStore) CreateguildTable() error {
 	return err
 }
 
-func ScanIntoGuild(rows *sql.Rows) (*common.Guild, error) {
+func ScanRowsIntoGuild(rows *sql.Rows) (*common.Guild, error) {
 	guild := new(common.Guild)
 	err := rows.Scan(
+		&guild.ID,
+		&guild.Prefix,
+	)
+
+	return guild, err
+}
+
+func ScanRowIntoGuild(row *sql.Row) (*common.Guild, error) {
+	guild := new(common.Guild)
+	err := row.Scan(
 		&guild.ID,
 		&guild.Prefix,
 	)
@@ -28,14 +38,9 @@ func ScanIntoGuild(rows *sql.Rows) (*common.Guild, error) {
 func (s *PostgresStore) GetGuild(guildID string) (*common.Guild, error) {
 	query := `SELECT * FROM guilds WHERE id = $1;`
 
-	rows, err := s.db.Query(query, guildID)
-	if err != nil {
-		return nil, err
-	}
+	row := s.db.QueryRow(query, guildID)
 
-	rows.Next()
-
-	guild, err := ScanIntoGuild(rows)
+	guild, err := ScanRowIntoGuild(row)
 	if err != nil {
 		return nil, err
 	}

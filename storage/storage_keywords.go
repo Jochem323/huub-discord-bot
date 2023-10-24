@@ -17,9 +17,21 @@ func (s *PostgresStore) CreatekeywordTable() error {
 	return err
 }
 
-func ScanIntoKeyword(rows *sql.Rows) (*common.Keyword, error) {
+func ScanRowsIntoKeyword(rows *sql.Rows) (*common.Keyword, error) {
 	keyword := new(common.Keyword)
 	err := rows.Scan(
+		&keyword.ID,
+		&keyword.GuildID,
+		&keyword.Key,
+		&keyword.Reaction,
+	)
+
+	return keyword, err
+}
+
+func ScanRowIntoKeyword(row *sql.Row) (*common.Keyword, error) {
+	keyword := new(common.Keyword)
+	err := row.Scan(
 		&keyword.ID,
 		&keyword.GuildID,
 		&keyword.Key,
@@ -37,9 +49,11 @@ func (s *PostgresStore) GetKeywords(guildID string) ([]common.Keyword, error) {
 		return nil, err
 	}
 
+	defer rows.Close()
+
 	keywords := []common.Keyword{}
 	for rows.Next() {
-		keyword, err := ScanIntoKeyword(rows)
+		keyword, err := ScanRowsIntoKeyword(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -74,13 +88,9 @@ func (s *PostgresStore) DeleteKeyword(id int) error {
 func (s *PostgresStore) FindKeyword(guildID string, key string) (common.Keyword, error) {
 	query := `SELECT * FROM keywords WHERE guild_id = $1 AND keyword = $2;`
 
-	rows, err := s.db.Query(query, guildID, key)
-	if err != nil {
-		return common.Keyword{}, err
-	}
+	row := s.db.QueryRow(query, guildID, key)
 
-	rows.Next()
-	keyword, err := ScanIntoKeyword(rows)
+	keyword, err := ScanRowIntoKeyword(row)
 	if err != nil {
 		return common.Keyword{}, err
 	}
