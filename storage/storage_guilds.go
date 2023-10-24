@@ -15,7 +15,7 @@ func (s *PostgresStore) CreateguildTable() error {
 	return err
 }
 
-func ScanIntoGuild(rows *sql.Rows) (*common.Guild, error) {
+func ScanRowsIntoGuild(rows *sql.Rows) (*common.Guild, error) {
 	guild := new(common.Guild)
 	err := rows.Scan(
 		&guild.ID,
@@ -25,17 +25,45 @@ func ScanIntoGuild(rows *sql.Rows) (*common.Guild, error) {
 	return guild, err
 }
 
-func (s *PostgresStore) GetGuild(guildID string) (*common.Guild, error) {
-	query := `SELECT * FROM guilds WHERE id = $1;`
+func ScanRowIntoGuild(row *sql.Row) (*common.Guild, error) {
+	guild := new(common.Guild)
+	err := row.Scan(
+		&guild.ID,
+		&guild.Prefix,
+	)
 
-	rows, err := s.db.Query(query, guildID)
+	return guild, err
+}
+
+func (s *PostgresStore) GetGuilds() (*[]common.Guild, error) {
+	query := `SELECT * FROM guilds;`
+
+	rows, err := s.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 
-	rows.Next()
+	defer rows.Close()
 
-	guild, err := ScanIntoGuild(rows)
+	guilds := []common.Guild{}
+	for rows.Next() {
+		guild, err := ScanRowsIntoGuild(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		guilds = append(guilds, *guild)
+	}
+
+	return &guilds, nil
+}
+
+func (s *PostgresStore) GetGuild(guildID string) (*common.Guild, error) {
+	query := `SELECT * FROM guilds WHERE id = $1;`
+
+	row := s.db.QueryRow(query, guildID)
+
+	guild, err := ScanRowIntoGuild(row)
 	if err != nil {
 		return nil, err
 	}
