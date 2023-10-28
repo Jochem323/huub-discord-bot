@@ -37,6 +37,8 @@ func (s *PostgresStore) GetKeywords(guildID string) ([]common.Keyword, error) {
 		return nil, err
 	}
 
+	defer rows.Close()
+
 	keywords := []common.Keyword{}
 	for _, result := range results {
 		keyword := result.(common.Keyword)
