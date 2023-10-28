@@ -63,12 +63,12 @@ func SendDataResponse(w http.ResponseWriter, status int, v any) error {
 	return json.NewEncoder(w).Encode(v)
 }
 
-func (s *APIServer) GetKeyFromRequest(r *http.Request) (*common.APIKey, error) {
+func (s *APIServer) GetKeyFromRequest(r *http.Request) (common.APIKey, error) {
 	secret := os.Getenv("JWT_SECRET")
 
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {
-		return nil, fmt.Errorf("no token provided")
+		return common.APIKey{}, fmt.Errorf("no token provided")
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -80,7 +80,7 @@ func (s *APIServer) GetKeyFromRequest(r *http.Request) (*common.APIKey, error) {
 		return []byte(secret), nil
 	})
 	if err != nil {
-		return nil, err
+		return common.APIKey{}, err
 	}
 
 	claims := token.Claims.(jwt.MapClaims)
@@ -89,7 +89,7 @@ func (s *APIServer) GetKeyFromRequest(r *http.Request) (*common.APIKey, error) {
 
 	key, err := s.APIKeyStore.GetKey(id)
 	if err != nil {
-		return nil, err
+		return common.APIKey{}, err
 	}
 
 	if key.Revoked {
@@ -98,4 +98,21 @@ func (s *APIServer) GetKeyFromRequest(r *http.Request) (*common.APIKey, error) {
 	}
 
 	return key, nil
+}
+
+func (s *APIServer) GetKeyValidity(key common.APIKey) bool {
+	if key.Admin {
+		return key.Active
+	}
+
+	guild, err := s.GuildStore.GetGuild(key.GuildID)
+	if err != nil {
+		return false
+	}
+
+	if !guild.APIEnabled {
+		return false
+	}
+
+	return key.Active
 }

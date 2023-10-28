@@ -41,6 +41,7 @@ type UpdateKeywordRequest struct {
 type CreateKeyRequest struct {
 	Admin     bool   `json:"admin"`
 	GuildID   string `json:"guild_id"`
+	Comment   string `json:"comment"`
 	CreatedBy string `json:"created_by"`
 }
 
@@ -50,7 +51,8 @@ type CreateKeyResponse struct {
 }
 
 type UpdateKeyRequest struct {
-	Active    *bool `json:"active"`
-	Revoked   *bool `json:"revoked"`
-	Ratelimit *bool `json:"ratelimit"`
+	Comment   string `json:"comment"`
+	Active    *bool  `json:"active"`
+	Revoked   *bool  `json:"revoked"`
+	Ratelimit *bool  `json:"ratelimit"`
 }

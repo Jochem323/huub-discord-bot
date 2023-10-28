@@ -15,7 +15,7 @@ func (s *APIServer) HandleGetKeywords(w http.ResponseWriter, r *http.Request) er
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusUnauthorized)
 	}
 
@@ -39,7 +39,7 @@ func (s *APIServer) HandleGetKeyword(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -66,7 +66,7 @@ func (s *APIServer) HandleCreateKeyword(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -88,7 +88,7 @@ func (s *APIServer) HandleCreateKeyword(w http.ResponseWriter, r *http.Request) 
 		Reaction: body.Reaction,
 	}
 
-	id, err := s.KeywordStore.AddKeyword(&keyword)
+	id, err := s.KeywordStore.AddKeyword(keyword)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func (s *APIServer) HandleUpdateKeyword(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -145,7 +145,7 @@ func (s *APIServer) HandleDeleteKeyword(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 

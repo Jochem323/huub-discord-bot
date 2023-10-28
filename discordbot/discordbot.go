@@ -52,7 +52,7 @@ func (b *DiscordBot) KeywordHandler(s *discordgo.Session, m *discordgo.MessageCr
 		return
 	}
 
-	keyword, err := b.keywordStore.FindKeyword(m.GuildID, m.Content)
+	keyword, err := b.KeywordStore.FindKeyword(m.GuildID, m.Content)
 	if err != nil {
 		return
 	}
@@ -72,7 +72,7 @@ func (b *DiscordBot) CommandHandler(d *discordgo.Session, m *discordgo.MessageCr
 	}
 
 	// Get the guild from the database
-	guild, err := b.guildStore.GetGuild(m.GuildID)
+	guild, err := b.GuildStore.GetGuild(m.GuildID)
 	if err != nil {
 		return
 	}
@@ -91,9 +91,11 @@ func (b *DiscordBot) CommandHandler(d *discordgo.Session, m *discordgo.MessageCr
 	case "monke":
 		commands.MonkeCommand(d, m)
 	case "keywords":
-		commands.KeywordsCommand(d, m, b.keywordStore)
+		commands.KeywordsCommand(d, m, b.KeywordStore)
 	case "prefix":
-		commands.PrefixCommand(d, m, b.guildStore)
+		commands.PrefixCommand(d, m, b.GuildStore)
+	case "api":
+		commands.APICommand(d, m, b.GuildStore, b.APIKeyStore)
 	}
 }
 
@@ -101,13 +103,13 @@ func (d *DiscordBot) AddGuildsToDB() {
 	guilds := d.session.State.Guilds
 
 	for _, guild := range guilds {
-		_, err := d.guildStore.GetGuild(guild.ID)
+		_, err := d.GuildStore.GetGuild(guild.ID)
 		if err != nil {
 			newGuild := common.Guild{
 				ID:     guild.ID,
 				Prefix: ".",
 			}
-			d.guildStore.AddGuild(&newGuild)
+			d.GuildStore.AddGuild(newGuild)
 		}
 	}
 }

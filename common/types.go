@@ -3,8 +3,9 @@ package common
 import "time"
 
 type Guild struct {
-	ID     string `json:"id"`
-	Prefix string `json:"prefix"`
+	ID         string `json:"id"`
+	Prefix     string `json:"prefix"`
+	APIEnabled bool   `json:"api_enabled"`
 }
 
 type Keyword struct {
@@ -18,6 +19,7 @@ type APIKey struct {
 	ID        int       `json:"id"`
 	Admin     bool      `json:"admin"`
 	GuildID   string    `json:"guild_id"`
+	Comment   string    `json:"comment"`
 	CreatedBy string    `json:"created_by"`
 	CreatedAt time.Time `json:"created_at"`
 	Active    bool      `json:"active"`

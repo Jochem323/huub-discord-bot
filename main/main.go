@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"huub-discord-bot/api"
 	"huub-discord-bot/discordbot"
@@ -24,6 +22,25 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Initialize the Discord bot
+	discord := discordbot.DiscordBot{
+		KeywordStore: db,
+		GuildStore:   db,
+		APIKeyStore:  db,
+	}
+	err = discord.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Add handlers
+	discord.AddHandler(discord.KeywordHandler)
+	discord.AddHandler(discord.CommandHandler)
+
+	log.Println("Discord bot running")
+
+	defer discord.Close()
+
 	// Get the listen address from the environment
 	listenAddress, found := os.LookupEnv("API_LISTEN_ADDRESS")
 	if !found {
@@ -39,22 +56,4 @@ func main() {
 		APIKeyStore:  db,
 	}
 	api.Run()
-
-	// Initialize the Discord bot
-	discord := discordbot.NewDiscordBot(db, db)
-	err = discord.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Add handlers
-	discord.AddHandler(discord.KeywordHandler)
-	discord.AddHandler(discord.CommandHandler)
-
-	// Wait for a signal to close the bot
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
-	<-sc
-
-	discord.Close()
 }

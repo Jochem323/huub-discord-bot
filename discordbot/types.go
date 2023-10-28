@@ -8,13 +8,7 @@ import (
 
 type DiscordBot struct {
 	session      *discordgo.Session
-	keywordStore storage.KeywordStore
-	guildStore   storage.GuildStore
-}
-
-func NewDiscordBot(keywordStore storage.KeywordStore, guildStore storage.GuildStore) *DiscordBot {
-	return &DiscordBot{
-		keywordStore: keywordStore,
-		guildStore:   guildStore,
-	}
+	KeywordStore storage.KeywordStore
+	GuildStore   storage.GuildStore
+	APIKeyStore  storage.APIKeyStore
 }

@@ -14,7 +14,7 @@ func (s *APIServer) HandleGetGuilds(w http.ResponseWriter, r *http.Request) erro
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -36,7 +36,7 @@ func (s *APIServer) HandleGetGuild(w http.ResponseWriter, r *http.Request) error
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -60,7 +60,7 @@ func (s *APIServer) HandleCreateGuild(w http.ResponseWriter, r *http.Request) er
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -79,7 +79,7 @@ func (s *APIServer) HandleCreateGuild(w http.ResponseWriter, r *http.Request) er
 		Prefix: body.Prefix,
 	}
 
-	err = s.GuildStore.AddGuild(&guild)
+	err = s.GuildStore.AddGuild(guild)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (s *APIServer) HandleUpdateGuild(w http.ResponseWriter, r *http.Request) er
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -133,7 +133,7 @@ func (s *APIServer) HandleDeleteGuild(w http.ResponseWriter, r *http.Request) er
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 

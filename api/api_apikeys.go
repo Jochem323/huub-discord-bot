@@ -18,7 +18,7 @@ func (s *APIServer) HandleGetKeys(w http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -40,7 +40,7 @@ func (s *APIServer) HandleGetKey(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -67,7 +67,7 @@ func (s *APIServer) HandleCreateKey(w http.ResponseWriter, r *http.Request) erro
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -84,6 +84,7 @@ func (s *APIServer) HandleCreateKey(w http.ResponseWriter, r *http.Request) erro
 	APIKey := common.APIKey{
 		Admin:     body.Admin,
 		GuildID:   body.GuildID,
+		Comment:   body.Comment,
 		CreatedBy: body.CreatedBy,
 		CreatedAt: time.Now(),
 		Active:    true,
@@ -91,7 +92,7 @@ func (s *APIServer) HandleCreateKey(w http.ResponseWriter, r *http.Request) erro
 		Ratelimit: true,
 	}
 
-	id, err := s.APIKeyStore.AddKey(&APIKey)
+	id, err := s.APIKeyStore.AddKey(APIKey)
 	if err != nil {
 		return err
 	}
@@ -117,7 +118,7 @@ func (s *APIServer) HandleUpdateKey(w http.ResponseWriter, r *http.Request) erro
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 
@@ -139,6 +140,10 @@ func (s *APIServer) HandleUpdateKey(w http.ResponseWriter, r *http.Request) erro
 	APIKey, err := s.APIKeyStore.GetKey(requestedKey)
 	if err != nil {
 		return err
+	}
+
+	if body.Comment != "" {
+		APIKey.Comment = body.Comment
 	}
 
 	if body.Active != nil {
@@ -167,7 +172,7 @@ func (s *APIServer) HandleDeleteKey(w http.ResponseWriter, r *http.Request) erro
 		return err
 	}
 
-	if !key.Active {
+	if !s.GetKeyValidity(key) {
 		return SendEmptyResponse(w, http.StatusForbidden)
 	}
 

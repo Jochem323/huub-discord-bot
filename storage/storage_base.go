@@ -46,3 +46,63 @@ func (s *PostgresStore) Init() error {
 
 	return nil
 }
+
+func (s *PostgresStore) GetMultiple(scanFunc func(*sql.Rows) (any, error), query string, args ...any) ([]any, error) {
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var results []any
+	for rows.Next() {
+		result, err := scanFunc(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, result)
+	}
+
+	return results, nil
+}
+
+func (s *PostgresStore) GetOne(scanFunc func(*sql.Rows) (any, error), query string, args ...any) (any, error) {
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	if !rows.Next() {
+		return nil, ErrNotFound
+	}
+
+	result, err := scanFunc(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	if rows.Next() {
+		return nil, ErrMultipleFound
+	}
+
+	return result, nil
+}
+
+func (s *PostgresStore) Exec(query string, args ...any) error {
+	_, err := s.db.Exec(query, args...)
+	return err
+}
+
+func (s *PostgresStore) ExecReturnId(query string, args ...any) (int, error) {
+	var id int
+	err := s.db.QueryRow(query, args...).Scan(&id)
+	if err != nil {
+		return -1, err
+	}
+
+	return id, nil
+}
