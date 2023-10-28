@@ -21,6 +21,8 @@ func KeywordsCommand(d *discordgo.Session, m *discordgo.MessageCreate, keywordSt
 	switch subcommand {
 	case "add":
 		AddKeyword(d, m, keywordStore)
+	case "list":
+		ListKeywords(d, m, keywordStore)
 	case "update":
 		UpdateKeyword(d, m, keywordStore)
 	case "remove":
@@ -29,20 +31,24 @@ func KeywordsCommand(d *discordgo.Session, m *discordgo.MessageCreate, keywordSt
 }
 
 func AddKeyword(d *discordgo.Session, m *discordgo.MessageCreate, keywordStore storage.KeywordStore) {
-	// Get the keyword
-	key := strings.Split(m.Content, " ")[2]
+	// Get substrings
+	substrings := strings.SplitN(m.Content, " ", 4)
 
-	// Get the reaction
-	reaction := strings.SplitN(m.Content, " ", 4)[3]
-
-	// Get the guildID
-	guildID := m.GuildID
-
-	// Create the keyword
-	keyword := common.NewKeyword(guildID, key, reaction)
+	// Check if the substrings are correct
+	if len(substrings) != 4 {
+		d.ChannelMessageSend(m.ChannelID, "Something went wrong")
+		return
+	}
 
 	// Create the keyword
-	err := keywordStore.AddKeyword(guildID, keyword)
+	keyword := common.Keyword{
+		GuildID:  m.GuildID,
+		Keyword:  substrings[2],
+		Reaction: substrings[3],
+	}
+
+	// Create the keyword
+	_, err := keywordStore.AddKeyword(keyword)
 	if err != nil {
 		d.ChannelMessageSend(m.ChannelID, "Something went wrong")
 		return
@@ -51,29 +57,47 @@ func AddKeyword(d *discordgo.Session, m *discordgo.MessageCreate, keywordStore s
 	d.ChannelMessageSend(m.ChannelID, "Keyword added")
 }
 
-func UpdateKeyword(d *discordgo.Session, m *discordgo.MessageCreate, keywordStore storage.KeywordStore) {
-	// Get the keyword
-	key := strings.Split(m.Content, " ")[2]
-
-	// Get the reaction
-	reaction := strings.SplitN(m.Content, " ", 4)[3]
-
+func ListKeywords(d *discordgo.Session, m *discordgo.MessageCreate, keywordStore storage.KeywordStore) {
 	// Get the guildID
 	guildID := m.GuildID
 
-	// Get the old keyword
-	keyword, err := keywordStore.FindKeyword(guildID, key)
+	// Get the keywords
+	keywords, err := keywordStore.GetKeywords(guildID)
 	if err != nil {
 		d.ChannelMessageSend(m.ChannelID, "Something went wrong")
 		return
 	}
 
-	// Create the new keyword
-	newKeyword := common.NewKeyword(guildID, key, reaction)
-	newKeyword.ID = keyword.ID
+	// Create the message
+	message := "Keywords:\n"
+	for _, keyword := range keywords {
+		message += keyword.Keyword + ": " + keyword.Reaction + "\n"
+	}
+
+	d.ChannelMessageSend(m.ChannelID, message)
+}
+
+func UpdateKeyword(d *discordgo.Session, m *discordgo.MessageCreate, keywordStore storage.KeywordStore) {
+	// Get substrings
+	substrings := strings.SplitN(m.Content, " ", 4)
+
+	// Check if the substrings are correct
+	if len(substrings) != 4 {
+		d.ChannelMessageSend(m.ChannelID, "Something went wrong")
+		return
+	}
+
+	// Get the old keyword
+	keyword, err := keywordStore.FindKeyword(m.GuildID, substrings[2])
+	if err != nil {
+		d.ChannelMessageSend(m.ChannelID, "Something went wrong")
+		return
+	}
+
+	keyword.Reaction = substrings[3]
 
 	// Create the keyword
-	err = keywordStore.UpdateKeyword(newKeyword)
+	err = keywordStore.UpdateKeyword(keyword)
 	if err != nil {
 		d.ChannelMessageSend(m.ChannelID, "Something went wrong")
 		return
@@ -86,10 +110,7 @@ func RemoveKeyword(d *discordgo.Session, m *discordgo.MessageCreate, keywordStor
 	// Get the keyword
 	key := strings.Split(m.Content, " ")[2]
 
-	// Get the guildID
-	guildID := m.GuildID
-
-	keyword, err := keywordStore.FindKeyword(guildID, key)
+	keyword, err := keywordStore.FindKeyword(m.GuildID, key)
 	if err != nil {
 		d.ChannelMessageSend(m.ChannelID, "Something went wrong")
 		return
