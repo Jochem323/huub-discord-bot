@@ -11,6 +11,8 @@ import (
 )
 
 func (b *DiscordBot) Init() error {
+	b.log = log.New(os.Stdout, "DiscordBot: ", log.Ldate|log.Ltime)
+
 	// Create a new Discord session using the provided bot token
 	discord, err := discordgo.New("Bot " + os.Getenv("BOT_TOKEN"))
 	if err != nil {
@@ -28,7 +30,7 @@ func (b *DiscordBot) Init() error {
 
 	b.AddGuildsToDB()
 
-	log.Println("Bot is running")
+	b.log.Println("Discord bot is running")
 
 	return nil
 }

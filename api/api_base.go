@@ -13,6 +13,8 @@ import (
 )
 
 func (s *APIServer) Run() {
+	s.log = log.New(os.Stdout, "API: ", log.Ldate|log.Ltime)
+
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api/guilds", MakeHandlerFunc(s.HandleGetGuilds)).Methods(http.MethodGet)
@@ -33,9 +35,14 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/api/apikeys/{key_id}", MakeHandlerFunc(s.HandleUpdateKey)).Methods(http.MethodPut)
 	router.HandleFunc("/api/apikeys/{key_id}", MakeHandlerFunc(s.HandleDeleteKey)).Methods(http.MethodDelete)
 
-	log.Println("API Server running")
+	s.log.Println("API Server running")
 
-	http.ListenAndServe(s.ListenAdress, router)
+	go func() {
+		err := http.ListenAndServe(s.ListenAdress, router)
+		if err != nil {
+			s.log.Fatal(err)
+		}
+	}()
 }
 
 func MakeHandlerFunc(f APIFunc) http.HandlerFunc {

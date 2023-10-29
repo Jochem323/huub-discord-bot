@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"huub-discord-bot/common"
+	"log"
 )
 
 var (
@@ -12,7 +13,8 @@ var (
 )
 
 type PostgresStore struct {
-	db *sql.DB
+	db  *sql.DB
+	log *log.Logger
 }
 
 type KeywordStore interface {

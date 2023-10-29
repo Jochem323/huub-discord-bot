@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"huub-discord-bot/api"
 	"huub-discord-bot/discordbot"
@@ -10,16 +12,18 @@ import (
 )
 
 func main() {
+	logger := log.New(os.Stdout, "Main: ", log.Ldate|log.Ltime)
+
 	// Connect to the database
 	db, err := storage.NewPostgresStore()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	// Initialize the database
 	err = db.Init()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	// Initialize the Discord bot
@@ -30,16 +34,12 @@ func main() {
 	}
 	err = discord.Init()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	// Add handlers
 	discord.AddHandler(discord.KeywordHandler)
 	discord.AddHandler(discord.CommandHandler)
-
-	log.Println("Discord bot running")
-
-	defer discord.Close()
 
 	// Get the listen address from the environment
 	listenAddress, found := os.LookupEnv("API_LISTEN_ADDRESS")
@@ -56,4 +56,10 @@ func main() {
 		APIKeyStore:  db,
 	}
 	api.Run()
+
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	<-sc
+
+	discord.Close()
 }

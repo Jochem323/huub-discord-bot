@@ -3,11 +3,13 @@ package api
 import (
 	"huub-discord-bot/common"
 	"huub-discord-bot/storage"
+	"log"
 	"net/http"
 )
 
 type APIServer struct {
 	ListenAdress string
+	log          *log.Logger
 	GuildStore   storage.GuildStore
 	KeywordStore storage.KeywordStore
 	APIKeyStore  storage.APIKeyStore

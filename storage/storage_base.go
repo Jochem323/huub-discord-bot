@@ -2,7 +2,7 @@ package storage
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 	"os"
 
 	_ "github.com/lib/pq"
@@ -20,8 +20,6 @@ func NewPostgresStore() (*PostgresStore, error) {
 		return nil, err
 	}
 
-	fmt.Println("Connected to Postgres!")
-
 	return &PostgresStore{
 		db: db,
 	}, nil
@@ -29,6 +27,8 @@ func NewPostgresStore() (*PostgresStore, error) {
 
 // Initialize the database
 func (s *PostgresStore) Init() error {
+	s.log = log.New(os.Stdout, "Storage: ", log.Ldate|log.Ltime)
+
 	err := s.CreateKeywordTable()
 	if err != nil {
 		return err
@@ -43,6 +43,8 @@ func (s *PostgresStore) Init() error {
 	if err != nil {
 		return err
 	}
+
+	s.log.Println("Database initialized")
 
 	return nil
 }
