@@ -6,7 +6,12 @@ require github.com/bwmarrin/discordgo v0.27.1
 
 require github.com/gorilla/mux v1.8.0
 
-require github.com/golang-jwt/jwt/v5 v5.0.0
+require (
+	github.com/bwmarrin/dgvoice v0.0.0-20210225172318-caaac756e02e
+	github.com/golang-jwt/jwt/v5 v5.0.0
+)
+
+require layeh.com/gopus v0.0.0-20210501142526-1ee02d434e32 // indirect
 
 require (
 	github.com/gorilla/websocket v1.4.2 // indirect

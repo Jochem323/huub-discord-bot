@@ -3,6 +3,7 @@ package discordbot
 import (
 	"huub-discord-bot/commands"
 	"huub-discord-bot/common"
+	"huub-discord-bot/music"
 	"log"
 	"os"
 	"strings"
@@ -29,6 +30,8 @@ func (b *DiscordBot) Init() error {
 	b.session = discord
 
 	b.AddGuildsToDB()
+
+	b.VCHandler = music.NewVCHandler()
 
 	b.log.Println("Discord bot is running")
 
@@ -98,6 +101,8 @@ func (b *DiscordBot) CommandHandler(d *discordgo.Session, m *discordgo.MessageCr
 		commands.PrefixCommand(d, m, b.GuildStore)
 	case "api":
 		commands.APICommand(d, m, b.GuildStore, b.APIKeyStore)
+	case "music":
+		commands.MusicCommand(d, m, b.VCHandler)
 	}
 }
 

@@ -1,6 +1,7 @@
 package discordbot
 
 import (
+	"huub-discord-bot/music"
 	"huub-discord-bot/storage"
 	"log"
 
@@ -10,6 +11,7 @@ import (
 type DiscordBot struct {
 	log          *log.Logger
 	session      *discordgo.Session
+	VCHandler    *music.VCHandler
 	KeywordStore storage.KeywordStore
 	GuildStore   storage.GuildStore
 	APIKeyStore  storage.APIKeyStore
